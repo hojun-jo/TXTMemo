@@ -4,6 +4,7 @@ import UniformTypeIdentifiers
 final class NotepadDocument: NSDocument {
     private nonisolated(unsafe) var textContent = ""
     private nonisolated(unsafe) var lastSavedText = ""
+    private lazy var saveCoordinator = DocumentSaveCoordinator(document: self)
 
     override init() {
         super.init()
@@ -106,51 +107,7 @@ final class NotepadDocument: NSDocument {
     }
 
     func saveForClosing(from window: NSWindow, forceSaveAs: Bool, completion: @escaping (Bool) -> Void) {
-        let typeName = fileType ?? writableTypes(for: forceSaveAs ? .saveAsOperation : .saveOperation).first ?? UTType.plainText.identifier
-
-        if !forceSaveAs, let fileURL {
-            save(to: fileURL, ofType: typeName, for: .saveOperation) { error in
-                if let error {
-                    NSApp.presentError(error)
-                    completion(false)
-                } else {
-                    completion(true)
-                }
-            }
-
-            return
-        }
-
-        let savePanel = NSSavePanel()
-        savePanel.allowedContentTypes = [.plainText]
-        savePanel.allowsOtherFileTypes = false
-        savePanel.canSelectHiddenExtension = false
-        savePanel.isExtensionHidden = false
-        savePanel.nameFieldStringValue = suggestedSaveFilename()
-
-        savePanel.beginSheetModal(for: window) { [weak self] response in
-            guard let self else {
-                completion(false)
-                return
-            }
-
-            guard response == .OK, let saveURL = savePanel.url else {
-                completion(false)
-                return
-            }
-
-            let normalizedURL = normalizedTextFileURL(from: saveURL)
-            let operation: SaveOperationType = forceSaveAs ? .saveAsOperation : .saveOperation
-
-            save(to: normalizedURL, ofType: typeName, for: operation) { error in
-                if let error {
-                    NSApp.presentError(error)
-                    completion(false)
-                } else {
-                    completion(true)
-                }
-            }
-        }
+        saveCoordinator.saveForClosing(from: window, forceSaveAs: forceSaveAs, completion: completion)
     }
 
     private func refreshWindowTitles() {
@@ -170,19 +127,4 @@ final class NotepadDocument: NSDocument {
         (windowControllers.first as? DocumentWindowController)?.prepareToSave()
     }
 
-    private func suggestedSaveFilename() -> String {
-        if let fileURL {
-            return normalizedTextFileURL(from: fileURL).lastPathComponent
-        }
-
-        return normalizedTextFileURL(from: URL(fileURLWithPath: displayName)).lastPathComponent
-    }
-
-    private func normalizedTextFileURL(from url: URL) -> URL {
-        if url.pathExtension.lowercased() == "txt" {
-            return url
-        }
-
-        return url.deletingPathExtension().appendingPathExtension("txt")
-    }
 }
