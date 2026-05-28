@@ -49,6 +49,7 @@ let package = Package(
             sources: [
                 "Document/MenuActionValidator.swift",
                 "Document/SavePanelFilenamePolicy.swift",
+                "Document/SaveResult.swift",
                 "Document/SaveRoutePolicy.swift",
                 "Document/TextFileCodec.swift",
                 "Document/WindowTitleFormatter.swift",
@@ -69,6 +70,7 @@ let package = Package(
             sources: [
                 "MenuActionValidatorTests.swift",
                 "SavePanelFilenamePolicyTests.swift",
+                "SaveResultTests.swift",
                 "SaveRoutePolicyTests.swift",
                 "TextFileCodecTests.swift",
                 "WindowTitleFormatterTests.swift",
