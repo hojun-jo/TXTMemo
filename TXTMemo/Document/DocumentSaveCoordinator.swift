@@ -4,6 +4,7 @@ import UniformTypeIdentifiers
 @MainActor
 final class DocumentSaveCoordinator {
     private unowned let document: NotepadDocument
+    private let savePanelService = SavePanelService()
 
     init(document: NotepadDocument) {
         self.document = document
@@ -18,18 +19,20 @@ final class DocumentSaveCoordinator {
             return
         }
 
-        let savePanel = NSSavePanel()
-        _ = document.prepareSavePanel(savePanel)
-        savePanel.nameFieldStringValue = suggestedSaveFilename()
-
-        savePanel.beginSheetModal(for: window) { response in
-            guard response == .OK, let saveURL = savePanel.url else {
+        savePanelService.beginSaveSheet(for: window, configure: { savePanel in
+            _ = document.prepareSavePanel(savePanel)
+            savePanel.nameFieldStringValue = savePanelService.suggestedFilename(
+                documentDisplayName: document.displayName,
+                fileURL: document.fileURL
+            )
+        }) { saveURL in
+            guard let saveURL else {
                 completion(false)
                 return
             }
 
             self.saveDocument(
-                to: self.normalizedTextFileURL(from: saveURL),
+                to: self.savePanelService.normalizedTextFileURL(from: saveURL),
                 typeName: typeName,
                 operation: operation,
                 completion: completion
@@ -46,21 +49,5 @@ final class DocumentSaveCoordinator {
                 completion(true)
             }
         }
-    }
-
-    private func suggestedSaveFilename() -> String {
-        if let fileURL = document.fileURL {
-            return normalizedTextFileURL(from: fileURL).lastPathComponent
-        }
-
-        return normalizedTextFileURL(from: URL(fileURLWithPath: document.displayName)).lastPathComponent
-    }
-
-    private func normalizedTextFileURL(from url: URL) -> URL {
-        if url.pathExtension.lowercased() == "txt" {
-            return url
-        }
-
-        return url.deletingPathExtension().appendingPathExtension("txt")
     }
 }
