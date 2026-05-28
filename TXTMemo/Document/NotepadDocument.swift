@@ -14,6 +14,10 @@ final class NotepadDocument: NSDocument {
         false
     }
 
+    override func defaultDraftName() -> String {
+        UntitledNameAllocator.defaultDraftName()
+    }
+
     override func makeWindowControllers() {
         let windowController = DocumentWindowController(document: self)
         addWindowController(windowController)
