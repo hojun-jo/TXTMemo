@@ -1,7 +1,15 @@
 import AppKit
 
 @MainActor
-final class SavePanelService {
+protocol SavePanelServing {
+    func beginSaveSheet(
+        for window: NSWindow,
+        configure: (NSSavePanel) -> Void
+    ) async -> URL?
+}
+
+@MainActor
+final class SavePanelService: SavePanelServing {
     func beginSaveSheet(
         for window: NSWindow,
         configure: (NSSavePanel) -> Void

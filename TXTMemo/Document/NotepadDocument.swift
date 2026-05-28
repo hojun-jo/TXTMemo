@@ -2,10 +2,16 @@ import AppKit
 import UniformTypeIdentifiers
 
 final class NotepadDocument: NSDocument {
+    @MainActor
+    static var dependencies = NotepadDocumentDependencies.live
+
     private nonisolated(unsafe) var textContent = ""
     private nonisolated(unsafe) var lastSavedText = ""
     private var untitledDisplayIndex: Int?
-    private lazy var saveCoordinator = DocumentSaveCoordinator(document: self)
+    private lazy var saveCoordinator = DocumentSaveCoordinator(
+        document: self,
+        savePanelService: Self.dependencies.savePanelService
+    )
 
     override init() {
         super.init()
@@ -33,7 +39,8 @@ final class NotepadDocument: NSDocument {
     }
 
     override func makeWindowControllers() {
-        let windowController = DocumentWindowController(document: self)
+        let sessionController = EditorSessionController(settingsStore: Self.dependencies.settingsStore)
+        let windowController = DocumentWindowController(document: self, sessionController: sessionController)
         addWindowController(windowController)
     }
 

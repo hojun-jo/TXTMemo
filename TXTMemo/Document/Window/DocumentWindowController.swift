@@ -29,7 +29,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTo
 
     private lazy var closeCoordinator = CloseWorkflowCoordinator(document: documentRef, windowController: self)
     private let documentRef: NotepadDocument
-    private let sessionController = EditorSessionController()
+    private let sessionController: EditorSessionController
     private weak var documentViewController: DocumentWindowViewController?
     private var bypassesCloseConfirmation = false
     private let saveButton = NSButton(title: "Save", target: nil, action: nil)
@@ -41,7 +41,8 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTo
     private var wrapObserverID: UUID?
     private var hasConfiguredToolbarControls = false
 
-    init(document: NotepadDocument) {
+    init(document: NotepadDocument, sessionController: EditorSessionController) {
+        self.sessionController = sessionController
         let viewController = DocumentWindowViewController(document: document, sessionController: sessionController)
         let window = NSWindow(contentViewController: viewController)
 

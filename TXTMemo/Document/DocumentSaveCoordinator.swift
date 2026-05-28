@@ -4,10 +4,11 @@ import UniformTypeIdentifiers
 @MainActor
 final class DocumentSaveCoordinator {
     private unowned let document: NotepadDocument
-    private let savePanelService = SavePanelService()
+    private let savePanelService: any SavePanelServing
 
-    init(document: NotepadDocument) {
+    init(document: NotepadDocument, savePanelService: any SavePanelServing) {
         self.document = document
+        self.savePanelService = savePanelService
     }
 
     func saveForClosing(from window: NSWindow, forceSaveAs: Bool) async -> SaveResult {

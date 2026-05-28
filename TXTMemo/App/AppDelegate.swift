@@ -1,9 +1,20 @@
 import AppKit
 
+@MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    private let settingsStore = SettingsStore()
+    private let savePanelService = SavePanelService()
     private let documentController = NotepadDocumentController()
     private let terminationCoordinator = AppTerminationCoordinator()
-    private let preferencesWindowController = PreferencesWindowController.shared
+    private lazy var preferencesWindowController = PreferencesWindowController(settingsStore: settingsStore)
+
+    override init() {
+        super.init()
+        NotepadDocument.dependencies = NotepadDocumentDependencies(
+            settingsStore: settingsStore,
+            savePanelService: savePanelService
+        )
+    }
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.regular)

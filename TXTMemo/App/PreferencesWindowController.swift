@@ -2,8 +2,6 @@ import AppKit
 
 @MainActor
 final class PreferencesWindowController: NSWindowController, NSTextFieldDelegate {
-    static let shared = PreferencesWindowController()
-
     private let settingsStore: SettingsStore
     private let fontSizeField = NSTextField(string: "")
 
@@ -25,10 +23,6 @@ final class PreferencesWindowController: NSWindowController, NSTextFieldDelegate
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    convenience init() {
-        self.init(settingsStore: .shared)
     }
 
     func showWindowAndFocus() {

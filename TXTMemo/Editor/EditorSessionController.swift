@@ -21,10 +21,6 @@ final class EditorSessionController {
         fontSize = settingsStore.defaultFontSize
     }
 
-    convenience init() {
-        self.init(settingsStore: .shared)
-    }
-
     @discardableResult
     func addFontSizeObserver(_ observer: @escaping (Int) -> Void) -> UUID {
         let id = UUID()
