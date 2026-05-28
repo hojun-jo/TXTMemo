@@ -12,7 +12,7 @@ final class NotepadDocumentController {
             let document = try sharedController.openUntitledDocumentAndDisplay(true)
             revealWindows(for: document)
         } catch {
-            NSApp.presentError(error)
+            AlertPresenter.present(error)
         }
     }
 
