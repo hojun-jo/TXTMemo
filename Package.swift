@@ -43,11 +43,11 @@ let package = Package(
             exclude: [
                 "Assets.xcassets",
                 "App",
-                "Document",
                 "Workflows",
                 "Editor/NotepadTextView.swift"
             ],
             sources: [
+                "Document/UntitledNameAllocator.swift",
                 "Editor/EditorSessionController.swift",
                 "Settings/FontSizePolicy.swift",
                 "Settings/SettingsStore.swift"
@@ -61,6 +61,7 @@ let package = Package(
                 "CloseDecisionEngineTests.swift"
             ],
             sources: [
+                "UntitledNameAllocatorTests.swift",
                 "EditorSessionControllerTests.swift",
                 "SettingsStoreTests.swift"
             ]
