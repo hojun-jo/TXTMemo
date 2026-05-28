@@ -23,6 +23,8 @@ enum AppMenuBuilder {
 
         menu.addItem(withTitle: "About TXTMemo", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
         menu.addItem(.separator())
+        menu.addItem(withTitle: "Settings...", action: #selector(AppDelegate.showPreferences(_:)), keyEquivalent: ",")
+        menu.addItem(.separator())
         menu.addItem(withTitle: "Hide TXTMemo", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
         menu.addItem(withTitle: "Hide Others", action: #selector(NSApplication.hideOtherApplications(_:)), keyEquivalent: "h").keyEquivalentModifierMask = [.command, .option]
         menu.addItem(withTitle: "Show All", action: #selector(NSApplication.unhideAllApplications(_:)), keyEquivalent: "")
@@ -50,6 +52,13 @@ enum AppMenuBuilder {
 
         menu.addItem(withTitle: "Undo", action: Selector(("undo:")), keyEquivalent: "z")
         menu.addItem(withTitle: "Redo", action: Selector(("redo:")), keyEquivalent: "Z")
+        menu.addItem(.separator())
+        let increaseItem = menu.addItem(withTitle: "Increase Font Size", action: #selector(DocumentWindowController.increaseFontSize(_:)), keyEquivalent: "+")
+        increaseItem.keyEquivalentModifierMask = [.command]
+        let decreaseItem = menu.addItem(withTitle: "Decrease Font Size", action: #selector(DocumentWindowController.decreaseFontSize(_:)), keyEquivalent: "-")
+        decreaseItem.keyEquivalentModifierMask = [.command]
+        let resetItem = menu.addItem(withTitle: "Reset Font Size", action: #selector(DocumentWindowController.resetFontSizeToDefault(_:)), keyEquivalent: "0")
+        resetItem.keyEquivalentModifierMask = [.command]
         menu.addItem(.separator())
         menu.addItem(withTitle: "Cut", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
         menu.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")

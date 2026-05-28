@@ -11,6 +11,10 @@ let package = Package(
         .library(
             name: "CloseWorkflowCore",
             targets: ["CloseWorkflowCore"]
+        ),
+        .library(
+            name: "EditorCore",
+            targets: ["EditorCore"]
         )
     ],
     targets: [
@@ -28,7 +32,38 @@ let package = Package(
         .testTarget(
             name: "CloseWorkflowCoreTests",
             dependencies: ["CloseWorkflowCore"],
-            path: "TXTMemoTests"
+            path: "TXTMemoTests",
+            sources: [
+                "CloseDecisionEngineTests.swift"
+            ]
+        ),
+        .target(
+            name: "EditorCore",
+            path: "TXTMemo",
+            exclude: [
+                "Assets.xcassets",
+                "App",
+                "Document",
+                "Workflows",
+                "Editor/NotepadTextView.swift"
+            ],
+            sources: [
+                "Editor/EditorSessionController.swift",
+                "Settings/FontSizePolicy.swift",
+                "Settings/SettingsStore.swift"
+            ]
+        ),
+        .testTarget(
+            name: "EditorCoreTests",
+            dependencies: ["EditorCore"],
+            path: "TXTMemoTests",
+            exclude: [
+                "CloseDecisionEngineTests.swift"
+            ],
+            sources: [
+                "EditorSessionControllerTests.swift",
+                "SettingsStoreTests.swift"
+            ]
         )
     ]
 )
