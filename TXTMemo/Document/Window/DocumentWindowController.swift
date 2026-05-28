@@ -147,9 +147,9 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTo
         case #selector(saveDocumentAs(_:)):
             return true
         case #selector(increaseFontSize(_:)):
-            return currentFontSize < FontSizePolicy.maximum
+            return MenuActionValidator.canIncreaseFontSize(currentFontSize: currentFontSize)
         case #selector(decreaseFontSize(_:)):
-            return currentFontSize > FontSizePolicy.minimum
+            return MenuActionValidator.canDecreaseFontSize(currentFontSize: currentFontSize)
         case #selector(resetFontSizeToDefault(_:)):
             return true
         case #selector(toggleWrapEnabled(_:)):
@@ -295,8 +295,8 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTo
 
     private func refreshToolbarControlStates() {
         saveButton.isEnabled = documentRef.isDocumentEdited
-        decreaseFontSizeButton.isEnabled = currentFontSize > FontSizePolicy.minimum
-        increaseFontSizeButton.isEnabled = currentFontSize < FontSizePolicy.maximum
+        decreaseFontSizeButton.isEnabled = MenuActionValidator.canDecreaseFontSize(currentFontSize: currentFontSize)
+        increaseFontSizeButton.isEnabled = MenuActionValidator.canIncreaseFontSize(currentFontSize: currentFontSize)
     }
 
     private func commitFontSizeField() {

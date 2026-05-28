@@ -47,6 +47,7 @@ let package = Package(
                 "Editor/NotepadTextView.swift"
             ],
             sources: [
+                "Document/MenuActionValidator.swift",
                 "Document/TextFileCodec.swift",
                 "Document/WindowTitleFormatter.swift",
                 "Document/UntitledNameAllocator.swift",
@@ -63,6 +64,7 @@ let package = Package(
                 "CloseDecisionEngineTests.swift"
             ],
             sources: [
+                "MenuActionValidatorTests.swift",
                 "TextFileCodecTests.swift",
                 "WindowTitleFormatterTests.swift",
                 "UntitledNameAllocatorTests.swift",
