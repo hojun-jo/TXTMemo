@@ -21,7 +21,7 @@ final class DocumentSaveCoordinator {
 
         savePanelService.beginSaveSheet(for: window, configure: { savePanel in
             _ = document.prepareSavePanel(savePanel)
-            savePanel.nameFieldStringValue = savePanelService.suggestedFilename(
+            savePanel.nameFieldStringValue = SavePanelFilenamePolicy.suggestedFilename(
                 documentDisplayName: document.displayName,
                 fileURL: document.fileURL
             )
@@ -32,7 +32,7 @@ final class DocumentSaveCoordinator {
             }
 
             self.saveDocument(
-                to: self.savePanelService.normalizedTextFileURL(from: saveURL),
+                to: SavePanelFilenamePolicy.normalizedTextFileURL(from: saveURL),
                 typeName: typeName,
                 operation: operation,
                 completion: completion
