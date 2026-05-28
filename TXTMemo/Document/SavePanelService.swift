@@ -4,18 +4,20 @@ import AppKit
 final class SavePanelService {
     func beginSaveSheet(
         for window: NSWindow,
-        configure: (NSSavePanel) -> Void,
-        completion: @escaping (URL?) -> Void
-    ) {
+        configure: (NSSavePanel) -> Void
+    ) async -> URL? {
         let savePanel = NSSavePanel()
         configure(savePanel)
-        savePanel.beginSheetModal(for: window) { response in
-            guard response == .OK else {
-                completion(nil)
-                return
-            }
 
-            completion(savePanel.url)
+        return await withCheckedContinuation { continuation in
+            savePanel.beginSheetModal(for: window) { response in
+                guard response == .OK else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+
+                continuation.resume(returning: savePanel.url)
+            }
         }
     }
 }

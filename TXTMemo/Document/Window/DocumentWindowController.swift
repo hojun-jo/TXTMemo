@@ -81,17 +81,19 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTo
     func windowShouldClose(_ sender: NSWindow) -> Bool {
         guard !bypassesCloseConfirmation else { return true }
 
-        requestClose(for: .windowClose) { [weak self] shouldClose in
-            if shouldClose {
-                self?.forceCloseWindow()
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            if await requestClose(for: .windowClose) {
+                forceCloseWindow()
             }
         }
 
         return false
     }
 
-    func requestClose(for context: CloseRequestContext, completion: @escaping (Bool) -> Void) {
-        closeCoordinator.requestClose(context: context, completion: completion)
+    func requestClose(for context: CloseRequestContext) async -> Bool {
+        await closeCoordinator.requestClose(context: context)
     }
 
     func forceCloseWindow() {

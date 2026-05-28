@@ -18,62 +18,69 @@ final class CloseWorkflowCoordinator {
         self.windowController = windowController
     }
 
-    func requestClose(context: CloseRequestContext, completion: @escaping (Bool) -> Void) {
+    func requestClose(context: CloseRequestContext) async -> Bool {
         guard let windowController, let window = windowController.window else {
-            completion(true)
-            return
+            return true
         }
 
         if isHandlingCloseRequest || window.attachedSheet != nil {
             window.makeKeyAndOrderFront(nil)
-            completion(false)
-            return
+            return false
         }
 
         windowController.commitPendingEditorText()
 
         switch CloseDecisionEngine.decide(text: document.currentText(), isDocumentEdited: document.isDocumentEdited) {
         case .closeImmediately:
-            completion(true)
+            return true
         case .presentConfirmation:
             isHandlingCloseRequest = true
-            presentConfirmationSheet(for: window, completion: completion)
+            return await presentConfirmationSheet(for: window)
         }
     }
 
-    private func presentConfirmationSheet(for window: NSWindow, completion: @escaping (Bool) -> Void) {
-        let sheetController = CloseConfirmationSheetController(documentName: document.displayName) { [weak self] action in
-            self?.handleAction(action, in: window, completion: completion)
-        }
+    private func presentConfirmationSheet(for window: NSWindow) async -> Bool {
+        await withCheckedContinuation { continuation in
+            let sheetController = CloseConfirmationSheetController(documentName: document.displayName) { [weak self] action in
+                guard let self else {
+                    continuation.resume(returning: false)
+                    return
+                }
 
-        activeSheetController = sheetController
-        sheetController.beginSheet(for: window)
+                Task { @MainActor in
+                    let shouldClose = await self.handleAction(action, in: window)
+                    continuation.resume(returning: shouldClose)
+                }
+            }
+
+            activeSheetController = sheetController
+            sheetController.beginSheet(for: window)
+        }
     }
 
-    private func handleAction(_ action: CloseConfirmationAction, in window: NSWindow, completion: @escaping (Bool) -> Void) {
+    private func handleAction(_ action: CloseConfirmationAction, in window: NSWindow) async -> Bool {
         activeSheetController?.finish(on: window)
         activeSheetController = nil
 
         switch action {
         case .cancel:
-            finishRequest(shouldClose: false, completion: completion)
+            return finishRequest(shouldClose: false)
         case .discard:
-            finishRequest(shouldClose: true, completion: completion)
+            return finishRequest(shouldClose: true)
         case .save:
-            saveDocument(forceSaveAs: false, in: window, completion: completion)
+            return await saveDocument(forceSaveAs: false, in: window)
         case .saveAs:
-            saveDocument(forceSaveAs: true, in: window, completion: completion)
+            return await saveDocument(forceSaveAs: true, in: window)
         }
     }
 
-    private func saveDocument(forceSaveAs: Bool, in window: NSWindow, completion: @escaping (Bool) -> Void) {
-        document.saveForClosing(from: window, forceSaveAs: forceSaveAs) { [weak self] didSave in
-            self?.finishRequest(shouldClose: didSave, completion: completion)
-        }
+    private func saveDocument(forceSaveAs: Bool, in window: NSWindow) async -> Bool {
+        let result = await document.saveForClosing(from: window, forceSaveAs: forceSaveAs)
+        return finishRequest(shouldClose: result.shouldClose)
     }
 
-    private func finishRequest(shouldClose: Bool, completion: @escaping (Bool) -> Void) {
+    private func finishRequest(shouldClose: Bool) -> Bool {
         isHandlingCloseRequest = false
-        completion(shouldClose)
+        return shouldClose
     }
 }

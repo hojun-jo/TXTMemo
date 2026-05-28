@@ -44,6 +44,7 @@ private final class CloseConfirmationViewController: NSViewController {
     private let documentName: String
     private let onAction: (CloseConfirmationAction) -> Void
     private weak var saveButton: NSButton?
+    private var hasSentAction = false
 
     init(documentName: String, onAction: @escaping (CloseConfirmationAction) -> Void) {
         self.documentName = documentName
@@ -128,21 +129,27 @@ private final class CloseConfirmationViewController: NSViewController {
 
     @objc
     private func handleSave() {
-        onAction(.save)
+        sendAction(.save)
     }
 
     @objc
     private func handleSaveAs() {
-        onAction(.saveAs)
+        sendAction(.saveAs)
     }
 
     @objc
     private func handleCancel() {
-        onAction(.cancel)
+        sendAction(.cancel)
     }
 
     @objc
     private func handleDiscard() {
-        onAction(.discard)
+        sendAction(.discard)
+    }
+
+    private func sendAction(_ action: CloseConfirmationAction) {
+        guard !hasSentAction else { return }
+        hasSentAction = true
+        onAction(action)
     }
 }

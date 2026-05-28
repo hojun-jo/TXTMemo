@@ -20,12 +20,14 @@ final class AppTerminationCoordinator {
         self.application = application
         pendingControllers = controllers
         isRunning = true
-        processNextController()
+        Task { @MainActor [weak self] in
+            await self?.processNextController()
+        }
 
         return .terminateLater
     }
 
-    private func processNextController() {
+    private func processNextController() async {
         guard !pendingControllers.isEmpty else {
             finish(shouldTerminate: true)
             return
@@ -33,15 +35,11 @@ final class AppTerminationCoordinator {
 
         let controller = pendingControllers.removeFirst()
 
-        controller.requestClose(for: .appTermination) { [weak self] shouldClose in
-            guard let self else { return }
-
-            if shouldClose {
-                controller.forceCloseWindow()
-                processNextController()
-            } else {
-                finish(shouldTerminate: false)
-            }
+        if await controller.requestClose(for: .appTermination) {
+            controller.forceCloseWindow()
+            await processNextController()
+        } else {
+            finish(shouldTerminate: false)
         }
     }
 

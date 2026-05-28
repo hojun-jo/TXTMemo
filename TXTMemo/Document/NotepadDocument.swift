@@ -119,8 +119,8 @@ final class NotepadDocument: NSDocument {
         refreshWindowTitles()
     }
 
-    func saveForClosing(from window: NSWindow, forceSaveAs: Bool, completion: @escaping (Bool) -> Void) {
-        saveCoordinator.saveForClosing(from: window, forceSaveAs: forceSaveAs, completion: completion)
+    func saveForClosing(from window: NSWindow, forceSaveAs: Bool) async -> SaveResult {
+        await saveCoordinator.saveForClosing(from: window, forceSaveAs: forceSaveAs)
     }
 
     private func refreshWindowTitles() {
