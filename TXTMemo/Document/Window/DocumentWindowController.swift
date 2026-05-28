@@ -35,7 +35,6 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTo
         super.init(window: window)
 
         shouldCloseDocument = true
-        self.document = document
         window.delegate = self
         window.toolbar = buildToolbar()
         synchronizeWindowTitleWithDocumentName()
