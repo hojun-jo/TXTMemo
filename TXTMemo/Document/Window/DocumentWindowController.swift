@@ -2,6 +2,13 @@ import AppKit
 
 @MainActor
 final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSToolbarDelegate, NSTextFieldDelegate, NSMenuItemValidation {
+    private enum Layout {
+        static let controlHeight: CGFloat = 28
+        static let fontSizeFieldWidth: CGFloat = 56
+        static let toolbarButtonWidth: CGFloat = 32
+        static let wrapButtonWidth: CGFloat = 72
+    }
+
     private enum ToolbarItemIdentifier {
         static let decreaseFontSize = NSToolbarItem.Identifier("decreaseFontSize")
         static let currentFontSize = NSToolbarItem.Identifier("currentFontSize")
@@ -18,6 +25,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTo
     private let wrapToggleButton = NSButton(checkboxWithTitle: "Wrap", target: nil, action: nil)
     private var fontSizeObserverID: UUID?
     private var wrapObserverID: UUID?
+    private var hasConfiguredToolbarControls = false
 
     init(document: NotepadDocument) {
         let viewController = DocumentWindowViewController(document: document, sessionController: sessionController)
@@ -151,33 +159,29 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTo
         switch itemIdentifier {
         case ToolbarItemIdentifier.decreaseFontSize:
             let item = NSToolbarItem(itemIdentifier: itemIdentifier)
+            let button = NSButton(title: "A-", target: self, action: #selector(decreaseFontSize(_:)))
+            button.bezelStyle = .texturedRounded
+            button.setFrameSize(NSSize(width: Layout.toolbarButtonWidth, height: Layout.controlHeight))
+            item.view = button
             item.label = "A-"
             item.paletteLabel = "Decrease Font Size"
-            item.target = self
-            item.action = #selector(decreaseFontSize(_:))
             return item
         case ToolbarItemIdentifier.currentFontSize:
             let item = NSToolbarItem(itemIdentifier: itemIdentifier)
-            fontSizeField.alignment = .right
-            fontSizeField.controlSize = .regular
-            fontSizeField.delegate = self
-            fontSizeField.target = self
-            fontSizeField.action = #selector(commitFontSizeFieldAction(_:))
-            fontSizeField.frame = NSRect(x: 0, y: 0, width: 56, height: 0)
             item.view = fontSizeField
             item.label = "Font Size"
             return item
         case ToolbarItemIdentifier.increaseFontSize:
             let item = NSToolbarItem(itemIdentifier: itemIdentifier)
+            let button = NSButton(title: "A+", target: self, action: #selector(increaseFontSize(_:)))
+            button.bezelStyle = .texturedRounded
+            button.setFrameSize(NSSize(width: Layout.toolbarButtonWidth, height: Layout.controlHeight))
+            item.view = button
             item.label = "A+"
             item.paletteLabel = "Increase Font Size"
-            item.target = self
-            item.action = #selector(increaseFontSize(_:))
             return item
         case ToolbarItemIdentifier.wrapToggle:
             let item = NSToolbarItem(itemIdentifier: itemIdentifier)
-            wrapToggleButton.target = self
-            wrapToggleButton.action = #selector(toggleWrapEnabled(_:))
             item.view = wrapToggleButton
             item.label = "Wrap"
             return item
@@ -206,11 +210,44 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTo
     }
 
     private func buildToolbar() -> NSToolbar {
+        configureToolbarControlsIfNeeded()
+
         let toolbar = NSToolbar(identifier: "DocumentToolbar")
         toolbar.delegate = self
-        toolbar.displayMode = .iconOnly
+        toolbar.displayMode = .default
         toolbar.allowsUserCustomization = false
         return toolbar
+    }
+
+    private func configureToolbarControlsIfNeeded() {
+        guard !hasConfiguredToolbarControls else { return }
+
+        fontSizeField.alignment = .right
+        fontSizeField.controlSize = .regular
+        fontSizeField.delegate = self
+        fontSizeField.target = self
+        fontSizeField.action = #selector(commitFontSizeFieldAction(_:))
+        fontSizeField.isBordered = true
+        fontSizeField.isBezeled = true
+        fontSizeField.frame = NSRect(x: 0, y: 0, width: Layout.fontSizeFieldWidth, height: Layout.controlHeight)
+        fontSizeField.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            fontSizeField.widthAnchor.constraint(equalToConstant: Layout.fontSizeFieldWidth),
+            fontSizeField.heightAnchor.constraint(equalToConstant: Layout.controlHeight)
+        ])
+
+        wrapToggleButton.target = self
+        wrapToggleButton.action = #selector(toggleWrapEnabled(_:))
+        wrapToggleButton.bezelStyle = .texturedRounded
+        wrapToggleButton.setButtonType(.toggle)
+        wrapToggleButton.frame = NSRect(x: 0, y: 0, width: Layout.wrapButtonWidth, height: Layout.controlHeight)
+        wrapToggleButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            wrapToggleButton.widthAnchor.constraint(equalToConstant: Layout.wrapButtonWidth),
+            wrapToggleButton.heightAnchor.constraint(equalToConstant: Layout.controlHeight)
+        ])
+
+        hasConfiguredToolbarControls = true
     }
 
     private func commitFontSizeField() {
