@@ -284,7 +284,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTo
         ])
     }
 
-    private func prepareToSave() {
+    func prepareToSave() {
         documentViewController?.commitPendingEditorText(preservingEditorFocus: true)
     }
 

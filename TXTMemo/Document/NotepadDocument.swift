@@ -27,6 +27,16 @@ final class NotepadDocument: NSDocument {
         return super.prepareSavePanel(savePanel)
     }
 
+    override func save(_ sender: Any?) {
+        prepareToSave()
+        super.save(sender)
+    }
+
+    override func saveAs(_ sender: Any?) {
+        prepareToSave()
+        super.saveAs(sender)
+    }
+
     nonisolated override func data(ofType typeName: String) throws -> Data {
         guard let data = textContent.data(using: .utf8) else {
             throw CocoaError(.fileWriteInapplicableStringEncoding)
@@ -149,6 +159,17 @@ final class NotepadDocument: NSDocument {
         for case let windowController as DocumentWindowController in windowControllers {
             windowController.synchronizeWindowTitleWithDocumentName()
         }
+    }
+
+    private func prepareToSave() {
+        for case let windowController as DocumentWindowController in windowControllers {
+            if windowController.window?.isKeyWindow == true {
+                windowController.prepareToSave()
+                return
+            }
+        }
+
+        (windowControllers.first as? DocumentWindowController)?.prepareToSave()
     }
 
     private func suggestedSaveFilename() -> String {

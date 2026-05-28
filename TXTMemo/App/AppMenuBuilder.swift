@@ -3,13 +3,9 @@ import AppKit
 enum AppMenuBuilder {
     static func buildMainMenu() {
         let mainMenu = NSMenu()
-        let appMenuItem = NSMenuItem()
-        let fileMenuItem = NSMenuItem()
-        let editMenuItem = NSMenuItem()
-
-        mainMenu.addItem(appMenuItem)
-        mainMenu.addItem(fileMenuItem)
-        mainMenu.addItem(editMenuItem)
+        let appMenuItem = mainMenu.addItem(withTitle: "TXTMemo", action: nil, keyEquivalent: "")
+        let fileMenuItem = mainMenu.addItem(withTitle: "File", action: nil, keyEquivalent: "")
+        let editMenuItem = mainMenu.addItem(withTitle: "Edit", action: nil, keyEquivalent: "")
 
         appMenuItem.submenu = buildAppMenu()
         fileMenuItem.submenu = buildFileMenu()
@@ -42,10 +38,10 @@ enum AppMenuBuilder {
         menu.addItem(.separator())
         menu.addItem(withTitle: "Close", action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
 
-        let saveItem = menu.addItem(withTitle: "Save", action: #selector(DocumentWindowController.saveDocument(_:)), keyEquivalent: "s")
+        let saveItem = menu.addItem(withTitle: "Save", action: #selector(NSDocument.save(_:)), keyEquivalent: "s")
         saveItem.keyEquivalentModifierMask = [.command]
 
-        let saveAsItem = menu.addItem(withTitle: "Save As...", action: #selector(DocumentWindowController.saveDocumentAs(_:)), keyEquivalent: "S")
+        let saveAsItem = menu.addItem(withTitle: "Save As...", action: #selector(NSDocument.saveAs(_:)), keyEquivalent: "S")
         saveAsItem.keyEquivalentModifierMask = [.command, .shift]
 
         return menu

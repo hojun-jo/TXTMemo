@@ -1,10 +1,14 @@
 import AppKit
 
-@main
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let documentController = NotepadDocumentController()
     private let terminationCoordinator = AppTerminationCoordinator()
     private let preferencesWindowController = PreferencesWindowController.shared
+
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        NSApp.setActivationPolicy(.regular)
+        AppMenuBuilder.buildMainMenu()
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         AppMenuBuilder.buildMainMenu()
