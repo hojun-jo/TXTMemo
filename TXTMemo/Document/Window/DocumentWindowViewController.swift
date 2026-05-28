@@ -52,6 +52,11 @@ final class DocumentWindowViewController: NSViewController, NSTextViewDelegate {
         document.replaceText(with: textView.string)
     }
 
+    func commitPendingEditorText() {
+        view.window?.makeFirstResponder(nil)
+        document.replaceText(with: textView.string)
+    }
+
     private func applyDocumentText() {
         isUpdatingFromDocument = true
         textView.string = document.currentText()
