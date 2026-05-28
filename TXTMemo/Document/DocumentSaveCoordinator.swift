@@ -13,9 +13,12 @@ final class DocumentSaveCoordinator {
     func saveForClosing(from window: NSWindow, forceSaveAs: Bool, completion: @escaping (Bool) -> Void) {
         let operation: NSDocument.SaveOperationType = forceSaveAs ? .saveAsOperation : .saveOperation
         let typeName = document.fileType ?? document.writableTypes(for: operation).first ?? UTType.plainText.identifier
+        let finish: (SaveResult) -> Void = { result in
+            completion(result.shouldClose)
+        }
 
         if let fileURL = SaveRoutePolicy.directSaveURL(for: operation, fileURL: document.fileURL) {
-            saveDocument(to: fileURL, typeName: typeName, operation: operation, completion: completion)
+            saveDocument(to: fileURL, typeName: typeName, operation: operation, completion: finish)
             return
         }
 
@@ -27,7 +30,7 @@ final class DocumentSaveCoordinator {
             )
         }) { saveURL in
             guard let saveURL else {
-                completion(false)
+                finish(.cancelled)
                 return
             }
 
@@ -35,18 +38,23 @@ final class DocumentSaveCoordinator {
                 to: SavePanelFilenamePolicy.normalizedTextFileURL(from: saveURL),
                 typeName: typeName,
                 operation: operation,
-                completion: completion
+                completion: finish
             )
         }
     }
 
-    private func saveDocument(to url: URL, typeName: String, operation: NSDocument.SaveOperationType, completion: @escaping (Bool) -> Void) {
+    private func saveDocument(
+        to url: URL,
+        typeName: String,
+        operation: NSDocument.SaveOperationType,
+        completion: @escaping (SaveResult) -> Void
+    ) {
         document.save(to: url, ofType: typeName, for: operation) { error in
             if let error {
                 AlertPresenter.present(error)
-                completion(false)
+                completion(.failed)
             } else {
-                completion(true)
+                completion(.saved)
             }
         }
     }
