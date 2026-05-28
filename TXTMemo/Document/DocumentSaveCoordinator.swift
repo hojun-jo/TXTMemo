@@ -14,7 +14,7 @@ final class DocumentSaveCoordinator {
         let operation: NSDocument.SaveOperationType = forceSaveAs ? .saveAsOperation : .saveOperation
         let typeName = document.fileType ?? document.writableTypes(for: operation).first ?? UTType.plainText.identifier
 
-        if operation == .saveOperation, let fileURL = document.fileURL {
+        if let fileURL = SaveRoutePolicy.directSaveURL(for: operation, fileURL: document.fileURL) {
             saveDocument(to: fileURL, typeName: typeName, operation: operation, completion: completion)
             return
         }
