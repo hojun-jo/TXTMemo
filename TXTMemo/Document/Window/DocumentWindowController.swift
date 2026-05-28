@@ -6,6 +6,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTo
         static let decreaseFontSize = NSToolbarItem.Identifier("decreaseFontSize")
         static let currentFontSize = NSToolbarItem.Identifier("currentFontSize")
         static let increaseFontSize = NSToolbarItem.Identifier("increaseFontSize")
+        static let wrapToggle = NSToolbarItem.Identifier("wrapToggle")
     }
 
     private lazy var closeCoordinator = CloseWorkflowCoordinator(document: documentRef, windowController: self)
@@ -14,7 +15,9 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTo
     private weak var documentViewController: DocumentWindowViewController?
     private var bypassesCloseConfirmation = false
     private let fontSizeField = NSTextField(string: "")
+    private let wrapToggleButton = NSButton(checkboxWithTitle: "Wrap", target: nil, action: nil)
     private var fontSizeObserverID: UUID?
+    private var wrapObserverID: UUID?
 
     init(document: NotepadDocument) {
         let viewController = DocumentWindowViewController(document: document, sessionController: sessionController)
@@ -93,6 +96,10 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTo
         documentViewController?.resetFontSizeToDefault()
     }
 
+    @objc func toggleWrapEnabled(_ sender: Any?) {
+        documentViewController?.toggleWrapEnabled()
+    }
+
     func controlTextDidEndEditing(_ obj: Notification) {
         commitFontSizeField()
     }
@@ -109,6 +116,9 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTo
             return currentFontSize > FontSizePolicy.minimum
         case #selector(resetFontSizeToDefault(_:)):
             return true
+        case #selector(toggleWrapEnabled(_:)):
+            menuItem.state = isWrapEnabled ? .on : .off
+            return true
         default:
             return true
         }
@@ -119,6 +129,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTo
             ToolbarItemIdentifier.decreaseFontSize,
             ToolbarItemIdentifier.currentFontSize,
             ToolbarItemIdentifier.increaseFontSize,
+            ToolbarItemIdentifier.wrapToggle,
             .flexibleSpace
         ]
     }
@@ -129,6 +140,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTo
             ToolbarItemIdentifier.decreaseFontSize,
             ToolbarItemIdentifier.currentFontSize,
             ToolbarItemIdentifier.increaseFontSize
+            , ToolbarItemIdentifier.wrapToggle
         ]
     }
 
@@ -163,6 +175,13 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTo
             item.target = self
             item.action = #selector(increaseFontSize(_:))
             return item
+        case ToolbarItemIdentifier.wrapToggle:
+            let item = NSToolbarItem(itemIdentifier: itemIdentifier)
+            wrapToggleButton.target = self
+            wrapToggleButton.action = #selector(toggleWrapEnabled(_:))
+            item.view = wrapToggleButton
+            item.label = "Wrap"
+            return item
         default:
             return nil
         }
@@ -172,9 +191,17 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTo
         documentViewController?.currentFontSize ?? sessionController.fontSize
     }
 
+    private var isWrapEnabled: Bool {
+        documentViewController?.isWrapEnabled ?? sessionController.wrapEnabled
+    }
+
     private func bindSessionState() {
         fontSizeObserverID = sessionController.addFontSizeObserver { [weak self] fontSize in
             self?.fontSizeField.stringValue = String(fontSize)
+            self?.window?.toolbar?.validateVisibleItems()
+        }
+        wrapObserverID = sessionController.addWrapObserver { [weak self] wrapEnabled in
+            self?.wrapToggleButton.state = wrapEnabled ? .on : .off
             self?.window?.toolbar?.validateVisibleItems()
         }
     }

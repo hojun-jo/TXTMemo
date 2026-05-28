@@ -40,4 +40,17 @@ struct EditorSessionControllerTests {
 
         #expect(controller.fontSize == 19)
     }
+
+    @Test func wrapStartsEnabledAndTogglesPerSession() {
+        let settingsStore = SettingsStore(defaults: UserDefaults(suiteName: #function)!)
+        let controller = EditorSessionController(settingsStore: settingsStore)
+
+        #expect(controller.wrapEnabled)
+
+        controller.toggleWrapEnabled()
+        #expect(controller.wrapEnabled == false)
+
+        controller.setWrapEnabled(true)
+        #expect(controller.wrapEnabled)
+    }
 }
