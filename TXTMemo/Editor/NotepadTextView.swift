@@ -1,6 +1,8 @@
 import AppKit
 
 final class NotepadTextView: NSTextView {
+    private var currentFontSize = FontSizePolicy.defaultSize
+
     override init(frame frameRect: NSRect, textContainer container: NSTextContainer?) {
         let textContainer = container ?? NSTextContainer()
         let layoutManager = NSLayoutManager()
@@ -19,7 +21,7 @@ final class NotepadTextView: NSTextView {
         isAutomaticDashSubstitutionEnabled = false
         isAutomaticTextReplacementEnabled = false
         isAutomaticSpellingCorrectionEnabled = false
-        font = NSFont.monospacedSystemFont(ofSize: 14, weight: .regular)
+        font = NSFont.monospacedSystemFont(ofSize: CGFloat(currentFontSize), weight: .regular)
         textColor = .labelColor
         backgroundColor = .textBackgroundColor
         insertionPointColor = .labelColor
@@ -34,5 +36,10 @@ final class NotepadTextView: NSTextView {
 
     override func paste(_ sender: Any?) {
         pasteAsPlainText(sender)
+    }
+
+    func applyFontSize(_ size: Int) {
+        currentFontSize = FontSizePolicy.clamp(size)
+        font = NSFont.monospacedSystemFont(ofSize: CGFloat(currentFontSize), weight: .regular)
     }
 }

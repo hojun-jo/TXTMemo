@@ -2,11 +2,13 @@ import AppKit
 
 final class DocumentWindowViewController: NSViewController, NSTextViewDelegate {
     private let document: NotepadDocument
+    private let sessionController: EditorSessionController
     private let textView = NotepadTextView(frame: .zero, textContainer: nil)
     private var isUpdatingFromDocument = false
 
-    init(document: NotepadDocument) {
+    init(document: NotepadDocument, sessionController: EditorSessionController) {
         self.document = document
+        self.sessionController = sessionController
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -39,6 +41,9 @@ final class DocumentWindowViewController: NSViewController, NSTextViewDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        sessionController.addFontSizeObserver { [weak self] fontSize in
+            self?.textView.applyFontSize(fontSize)
+        }
         applyDocumentText()
     }
 
@@ -55,6 +60,26 @@ final class DocumentWindowViewController: NSViewController, NSTextViewDelegate {
     func commitPendingEditorText() {
         view.window?.makeFirstResponder(nil)
         document.replaceText(with: textView.string)
+    }
+
+    func increaseFontSize() {
+        sessionController.increaseFontSize()
+    }
+
+    func decreaseFontSize() {
+        sessionController.decreaseFontSize()
+    }
+
+    func resetFontSizeToDefault() {
+        sessionController.resetFontSizeToDefault()
+    }
+
+    func commitFontSizeInput(_ value: String?) {
+        sessionController.commitFontSizeInput(value)
+    }
+
+    var currentFontSize: Int {
+        sessionController.fontSize
     }
 
     private func applyDocumentText() {

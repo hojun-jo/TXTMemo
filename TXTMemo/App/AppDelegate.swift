@@ -4,6 +4,7 @@ import AppKit
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let documentController = NotepadDocumentController()
     private let terminationCoordinator = AppTerminationCoordinator()
+    private let preferencesWindowController = PreferencesWindowController.shared
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         AppMenuBuilder.buildMainMenu()
@@ -27,5 +28,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         terminationCoordinator.beginTermination(for: sender)
+    }
+
+    @objc func showPreferences(_ sender: Any?) {
+        preferencesWindowController.showWindowAndFocus()
     }
 }

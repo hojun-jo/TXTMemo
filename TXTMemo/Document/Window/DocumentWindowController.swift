@@ -1,13 +1,23 @@
 import AppKit
 
-final class DocumentWindowController: NSWindowController, NSWindowDelegate {
+@MainActor
+final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSToolbarDelegate, NSTextFieldDelegate, NSMenuItemValidation {
+    private enum ToolbarItemIdentifier {
+        static let decreaseFontSize = NSToolbarItem.Identifier("decreaseFontSize")
+        static let currentFontSize = NSToolbarItem.Identifier("currentFontSize")
+        static let increaseFontSize = NSToolbarItem.Identifier("increaseFontSize")
+    }
+
     private lazy var closeCoordinator = CloseWorkflowCoordinator(document: documentRef, windowController: self)
     private let documentRef: NotepadDocument
+    private let sessionController = EditorSessionController()
     private weak var documentViewController: DocumentWindowViewController?
     private var bypassesCloseConfirmation = false
+    private let fontSizeField = NSTextField(string: "")
+    private var fontSizeObserverID: UUID?
 
     init(document: NotepadDocument) {
-        let viewController = DocumentWindowViewController(document: document)
+        let viewController = DocumentWindowViewController(document: document, sessionController: sessionController)
         let window = NSWindow(contentViewController: viewController)
 
         self.documentRef = document
@@ -24,7 +34,9 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate {
         shouldCloseDocument = true
         self.document = document
         window.delegate = self
+        window.toolbar = buildToolbar()
         synchronizeWindowTitleWithDocumentName()
+        bindSessionState()
     }
 
     @available(*, unavailable)
@@ -67,5 +79,116 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate {
 
     func commitPendingEditorText() {
         documentViewController?.commitPendingEditorText()
+    }
+
+    @objc func increaseFontSize(_ sender: Any?) {
+        documentViewController?.increaseFontSize()
+    }
+
+    @objc func decreaseFontSize(_ sender: Any?) {
+        documentViewController?.decreaseFontSize()
+    }
+
+    @objc func resetFontSizeToDefault(_ sender: Any?) {
+        documentViewController?.resetFontSizeToDefault()
+    }
+
+    func controlTextDidEndEditing(_ obj: Notification) {
+        commitFontSizeField()
+    }
+
+    @objc func commitFontSizeFieldAction(_ sender: Any?) {
+        commitFontSizeField()
+    }
+
+    func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        switch menuItem.action {
+        case #selector(increaseFontSize(_:)):
+            return currentFontSize < FontSizePolicy.maximum
+        case #selector(decreaseFontSize(_:)):
+            return currentFontSize > FontSizePolicy.minimum
+        case #selector(resetFontSizeToDefault(_:)):
+            return true
+        default:
+            return true
+        }
+    }
+
+    func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
+        [
+            ToolbarItemIdentifier.decreaseFontSize,
+            ToolbarItemIdentifier.currentFontSize,
+            ToolbarItemIdentifier.increaseFontSize,
+            .flexibleSpace
+        ]
+    }
+
+    func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
+        [
+            .flexibleSpace,
+            ToolbarItemIdentifier.decreaseFontSize,
+            ToolbarItemIdentifier.currentFontSize,
+            ToolbarItemIdentifier.increaseFontSize
+        ]
+    }
+
+    func toolbar(
+        _ toolbar: NSToolbar,
+        itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier,
+        willBeInsertedIntoToolbar flag: Bool
+    ) -> NSToolbarItem? {
+        switch itemIdentifier {
+        case ToolbarItemIdentifier.decreaseFontSize:
+            let item = NSToolbarItem(itemIdentifier: itemIdentifier)
+            item.label = "A-"
+            item.paletteLabel = "Decrease Font Size"
+            item.target = self
+            item.action = #selector(decreaseFontSize(_:))
+            return item
+        case ToolbarItemIdentifier.currentFontSize:
+            let item = NSToolbarItem(itemIdentifier: itemIdentifier)
+            fontSizeField.alignment = .right
+            fontSizeField.controlSize = .regular
+            fontSizeField.delegate = self
+            fontSizeField.target = self
+            fontSizeField.action = #selector(commitFontSizeFieldAction(_:))
+            fontSizeField.frame = NSRect(x: 0, y: 0, width: 56, height: 0)
+            item.view = fontSizeField
+            item.label = "Font Size"
+            return item
+        case ToolbarItemIdentifier.increaseFontSize:
+            let item = NSToolbarItem(itemIdentifier: itemIdentifier)
+            item.label = "A+"
+            item.paletteLabel = "Increase Font Size"
+            item.target = self
+            item.action = #selector(increaseFontSize(_:))
+            return item
+        default:
+            return nil
+        }
+    }
+
+    private var currentFontSize: Int {
+        documentViewController?.currentFontSize ?? sessionController.fontSize
+    }
+
+    private func bindSessionState() {
+        fontSizeObserverID = sessionController.addFontSizeObserver { [weak self] fontSize in
+            self?.fontSizeField.stringValue = String(fontSize)
+            self?.window?.toolbar?.validateVisibleItems()
+        }
+    }
+
+    private func buildToolbar() -> NSToolbar {
+        let toolbar = NSToolbar(identifier: "DocumentToolbar")
+        toolbar.delegate = self
+        toolbar.displayMode = .iconOnly
+        toolbar.allowsUserCustomization = false
+        return toolbar
+    }
+
+    private func commitFontSizeField() {
+        documentViewController?.commitFontSizeInput(fontSizeField.stringValue)
+        fontSizeField.stringValue = String(currentFontSize)
     }
 }
