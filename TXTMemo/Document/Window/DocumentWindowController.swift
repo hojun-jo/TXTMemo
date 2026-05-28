@@ -70,7 +70,7 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTo
 
     override func windowTitle(forDocumentDisplayName displayName: String) -> String {
         guard let document else { return displayName }
-        return document.isDocumentEdited ? "\(displayName) *" : displayName
+        return WindowTitleFormatter.format(displayName: displayName, hasUnsavedChanges: document.isDocumentEdited)
     }
 
     override func synchronizeWindowTitleWithDocumentName() {
