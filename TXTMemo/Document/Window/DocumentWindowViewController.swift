@@ -3,6 +3,7 @@ import AppKit
 final class DocumentWindowViewController: NSViewController, NSTextViewDelegate {
     private let document: NotepadDocument
     private let sessionController: EditorSessionController
+    private let scrollView = NSScrollView()
     private let textView = NotepadTextView(frame: .zero, textContainer: nil)
     private var isUpdatingFromDocument = false
 
@@ -18,8 +19,6 @@ final class DocumentWindowViewController: NSViewController, NSTextViewDelegate {
     }
 
     override func loadView() {
-        let scrollView = NSScrollView()
-
         scrollView.borderType = .noBorder
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = false
@@ -44,7 +43,19 @@ final class DocumentWindowViewController: NSViewController, NSTextViewDelegate {
         sessionController.addFontSizeObserver { [weak self] fontSize in
             self?.textView.applyFontSize(fontSize)
         }
+        sessionController.addWrapObserver { [weak self] wrapEnabled in
+            guard let self else { return }
+            self.textView.applyWrapEnabled(wrapEnabled, in: self.scrollView)
+        }
         applyDocumentText()
+    }
+
+    override func viewDidLayout() {
+        super.viewDidLayout()
+
+        if sessionController.wrapEnabled {
+            textView.applyWrapEnabled(true, in: scrollView)
+        }
     }
 
     override func viewDidAppear() {
@@ -76,6 +87,14 @@ final class DocumentWindowViewController: NSViewController, NSTextViewDelegate {
 
     func commitFontSizeInput(_ value: String?) {
         sessionController.commitFontSizeInput(value)
+    }
+
+    func toggleWrapEnabled() {
+        sessionController.toggleWrapEnabled()
+    }
+
+    var isWrapEnabled: Bool {
+        sessionController.wrapEnabled
     }
 
     var currentFontSize: Int {

@@ -60,6 +60,8 @@ enum AppMenuBuilder {
         let resetItem = menu.addItem(withTitle: "Reset Font Size", action: #selector(DocumentWindowController.resetFontSizeToDefault(_:)), keyEquivalent: "0")
         resetItem.keyEquivalentModifierMask = [.command]
         menu.addItem(.separator())
+        menu.addItem(withTitle: "Auto Word Wrap", action: #selector(DocumentWindowController.toggleWrapEnabled(_:)), keyEquivalent: "")
+        menu.addItem(.separator())
         menu.addItem(withTitle: "Cut", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
         menu.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
         menu.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
