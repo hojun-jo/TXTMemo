@@ -43,7 +43,7 @@ final class DocumentSaveCoordinator {
     private func saveDocument(to url: URL, typeName: String, operation: NSDocument.SaveOperationType, completion: @escaping (Bool) -> Void) {
         document.save(to: url, ofType: typeName, for: operation) { error in
             if let error {
-                NSApp.presentError(error)
+                AlertPresenter.present(error)
                 completion(false)
             } else {
                 completion(true)
