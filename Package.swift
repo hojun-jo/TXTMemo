@@ -58,6 +58,7 @@ let package = Package(
                 "Document/WindowTitleFormatter.swift",
                 "Document/UntitledNameAllocator.swift",
                 "App/Preferences/SettingsStore.swift",
+                "App/Preferences/PlainTextDefaultAppManager.swift",
                 "Editor/EditorSessionController.swift",
                 "Editor/FontSizePolicy.swift",
                 "Editor/WrapLayoutController.swift",
@@ -82,7 +83,8 @@ let package = Package(
                 "UntitledNameAllocatorTests.swift",
                 "EditorSessionControllerTests.swift",
                 "WrapLayoutControllerTests.swift",
-                "SettingsStoreTests.swift"
+                "SettingsStoreTests.swift",
+                "PlainTextDefaultAppManagerTests.swift"
             ]
         )
     ]
