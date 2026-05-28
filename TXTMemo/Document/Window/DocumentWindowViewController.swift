@@ -68,6 +68,16 @@ final class DocumentWindowViewController: NSViewController, NSTextViewDelegate {
         document.replaceText(with: textView.string)
     }
 
+    @objc func undo(_ sender: Any?) {
+        textView.undoManager?.undo()
+        synchronizeDocumentAfterUndoRedo()
+    }
+
+    @objc func redo(_ sender: Any?) {
+        textView.undoManager?.redo()
+        synchronizeDocumentAfterUndoRedo()
+    }
+
     func commitPendingEditorText() {
         view.window?.makeFirstResponder(nil)
         document.replaceText(with: textView.string)
@@ -105,5 +115,10 @@ final class DocumentWindowViewController: NSViewController, NSTextViewDelegate {
         isUpdatingFromDocument = true
         textView.string = document.currentText()
         isUpdatingFromDocument = false
+    }
+
+    private func synchronizeDocumentAfterUndoRedo() {
+        guard !isUpdatingFromDocument else { return }
+        document.recomputeEditedState(for: textView.string)
     }
 }

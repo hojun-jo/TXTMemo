@@ -73,6 +73,19 @@ final class NotepadDocument: NSDocument {
         guard newText != textContent else { return }
 
         textContent = newText
+        synchronizeEditedState()
+    }
+
+    func recomputeEditedState(for currentText: String) {
+        textContent = currentText
+        synchronizeEditedState()
+    }
+
+    func isSyncedToSavedText(_ text: String) -> Bool {
+        text == lastSavedText
+    }
+
+    private func synchronizeEditedState() {
         let isEdited = textContent != lastSavedText
 
         if !isEdited {
