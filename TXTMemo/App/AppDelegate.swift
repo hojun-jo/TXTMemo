@@ -28,6 +28,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             guard !self.hasPendingExternalDocumentOpen else { return }
+            guard NSDocumentController.shared.documents.isEmpty else { return }
 
             self.documentController.openInitialUntitledDocument()
         }
