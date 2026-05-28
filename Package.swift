@@ -47,6 +47,7 @@ let package = Package(
                 "Editor/NotepadTextView.swift"
             ],
             sources: [
+                "Document/DocumentStatePolicy.swift",
                 "Document/MenuActionValidator.swift",
                 "Document/SavePanelFilenamePolicy.swift",
                 "Document/SaveResult.swift",
@@ -69,6 +70,7 @@ let package = Package(
             ],
             sources: [
                 "MenuActionValidatorTests.swift",
+                "DocumentStatePolicyTests.swift",
                 "SavePanelFilenamePolicyTests.swift",
                 "SaveResultTests.swift",
                 "SaveRoutePolicyTests.swift",

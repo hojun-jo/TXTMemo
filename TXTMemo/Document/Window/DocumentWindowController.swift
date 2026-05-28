@@ -69,8 +69,8 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTo
     }
 
     override func windowTitle(forDocumentDisplayName displayName: String) -> String {
-        guard let document else { return displayName }
-        return WindowTitleFormatter.format(displayName: displayName, hasUnsavedChanges: document.isDocumentEdited)
+        guard document != nil else { return displayName }
+        return WindowTitleFormatter.format(displayName: displayName, hasUnsavedChanges: documentRef.isDocumentEdited)
     }
 
     override func synchronizeWindowTitleWithDocumentName() {
@@ -142,9 +142,12 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTo
 
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         switch menuItem.action {
-        case #selector(saveDocument(_:)):
-            return documentRef.isDocumentEdited
-        case #selector(saveDocumentAs(_:)):
+        case #selector(NSDocument.save(_:)), #selector(saveDocument(_:)):
+            return MenuActionValidator.canSaveDocument(
+                hasFileURL: documentRef.fileURL != nil,
+                isDocumentEdited: documentRef.isDocumentEdited
+            )
+        case #selector(NSDocument.saveAs(_:)), #selector(saveDocumentAs(_:)):
             return true
         case #selector(increaseFontSize(_:)):
             return MenuActionValidator.canIncreaseFontSize(currentFontSize: currentFontSize)
@@ -294,7 +297,10 @@ final class DocumentWindowController: NSWindowController, NSWindowDelegate, NSTo
     }
 
     private func refreshToolbarControlStates() {
-        saveButton.isEnabled = documentRef.isDocumentEdited
+        saveButton.isEnabled = MenuActionValidator.canSaveDocument(
+            hasFileURL: documentRef.fileURL != nil,
+            isDocumentEdited: documentRef.isDocumentEdited
+        )
         decreaseFontSizeButton.isEnabled = MenuActionValidator.canDecreaseFontSize(currentFontSize: currentFontSize)
         increaseFontSizeButton.isEnabled = MenuActionValidator.canIncreaseFontSize(currentFontSize: currentFontSize)
     }

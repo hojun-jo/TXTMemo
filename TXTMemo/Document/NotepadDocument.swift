@@ -4,6 +4,7 @@ import UniformTypeIdentifiers
 final class NotepadDocument: NSDocument {
     private nonisolated(unsafe) var textContent = ""
     private nonisolated(unsafe) var lastSavedText = ""
+    private var untitledDisplayIndex: Int?
     private lazy var saveCoordinator = DocumentSaveCoordinator(document: self)
 
     override init() {
@@ -16,7 +17,19 @@ final class NotepadDocument: NSDocument {
     }
 
     override func defaultDraftName() -> String {
-        UntitledNameAllocator.defaultDraftName()
+        if untitledDisplayIndex == nil {
+            untitledDisplayIndex = UntitledNameAllocator.allocateDisplayIndex(
+                usedDisplayIndices: NSDocumentController.shared.documents.compactMap { document in
+                    guard let document = document as? NotepadDocument, document !== self, document.fileURL == nil else {
+                        return nil
+                    }
+
+                    return document.untitledDisplayIndex
+                }
+            )
+        }
+
+        return UntitledNameAllocator.defaultDraftName(for: untitledDisplayIndex ?? 1)
     }
 
     override func makeWindowControllers() {
@@ -95,7 +108,7 @@ final class NotepadDocument: NSDocument {
     }
 
     private func synchronizeEditedState() {
-        let isEdited = textContent != lastSavedText
+        let isEdited = DocumentStatePolicy.hasUnsavedChanges(currentText: textContent, lastSavedText: lastSavedText)
 
         if !isEdited {
             updateChangeCount(.changeCleared)
