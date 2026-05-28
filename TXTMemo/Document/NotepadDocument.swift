@@ -42,20 +42,14 @@ final class NotepadDocument: NSDocument {
     }
 
     nonisolated override func data(ofType typeName: String) throws -> Data {
-        guard let data = textContent.data(using: .utf8) else {
-            throw CocoaError(.fileWriteInapplicableStringEncoding)
-        }
-
-        return data
+        try TextFileCodec.writeUTF8Text(textContent)
     }
 
     nonisolated override func read(from data: Data, ofType typeName: String) throws {
-        guard let string = String(data: data, encoding: .utf8) else {
-            throw CocoaError(.fileReadInapplicableStringEncoding)
-        }
+        let decoded = try TextFileCodec.readText(from: data)
 
-        textContent = string
-        lastSavedText = string
+        textContent = decoded
+        lastSavedText = decoded
     }
 
     override func save(to url: URL, ofType typeName: String, for saveOperation: SaveOperationType, completionHandler: @escaping (Error?) -> Void) {
