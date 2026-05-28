@@ -42,23 +42,26 @@ let package = Package(
             path: "TXTMemo",
             exclude: [
                 "Assets.xcassets",
-                "App",
+                "App/AppDelegate.swift",
+                "App/AppMenuBuilder.swift",
+                "App/AppTerminationCoordinator.swift",
+                "App/Preferences/PreferencesWindowController.swift",
                 "Workflows",
                 "Editor/NotepadTextView.swift"
             ],
             sources: [
                 "Document/DocumentStatePolicy.swift",
                 "Document/MenuActionValidator.swift",
-                "Document/SavePanelFilenamePolicy.swift",
-                "Document/SaveResult.swift",
-                "Document/SaveRoutePolicy.swift",
-                "Document/TextFileCodec.swift",
+                "Document/Save/SavePanelFilenamePolicy.swift",
+                "Document/Save/SaveResult.swift",
+                "Document/Save/SaveRoutePolicy.swift",
                 "Document/WindowTitleFormatter.swift",
                 "Document/UntitledNameAllocator.swift",
+                "App/Preferences/SettingsStore.swift",
                 "Editor/EditorSessionController.swift",
+                "Editor/FontSizePolicy.swift",
                 "Editor/WrapLayoutController.swift",
-                "Settings/FontSizePolicy.swift",
-                "Settings/SettingsStore.swift"
+                "Infrastructure/TextFileCodec.swift"
             ]
         ),
         .testTarget(
