@@ -47,6 +47,7 @@ let package = Package(
                 "Editor/NotepadTextView.swift"
             ],
             sources: [
+                "Document/WindowTitleFormatter.swift",
                 "Document/UntitledNameAllocator.swift",
                 "Editor/EditorSessionController.swift",
                 "Settings/FontSizePolicy.swift",
@@ -61,6 +62,7 @@ let package = Package(
                 "CloseDecisionEngineTests.swift"
             ],
             sources: [
+                "WindowTitleFormatterTests.swift",
                 "UntitledNameAllocatorTests.swift",
                 "EditorSessionControllerTests.swift",
                 "SettingsStoreTests.swift"
