@@ -41,8 +41,12 @@ enum AppMenuBuilder {
         menu.addItem(withTitle: "Open...", action: #selector(NSDocumentController.openDocument(_:)), keyEquivalent: "o")
         menu.addItem(.separator())
         menu.addItem(withTitle: "Close", action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
-        menu.addItem(withTitle: "Save", action: #selector(NSDocument.save(_:)), keyEquivalent: "s")
-        menu.addItem(withTitle: "Save As...", action: #selector(NSDocument.saveAs(_:)), keyEquivalent: "S")
+
+        let saveItem = menu.addItem(withTitle: "Save", action: #selector(DocumentWindowController.saveDocument(_:)), keyEquivalent: "s")
+        saveItem.keyEquivalentModifierMask = [.command]
+
+        let saveAsItem = menu.addItem(withTitle: "Save As...", action: #selector(DocumentWindowController.saveDocumentAs(_:)), keyEquivalent: "S")
+        saveAsItem.keyEquivalentModifierMask = [.command, .shift]
 
         return menu
     }

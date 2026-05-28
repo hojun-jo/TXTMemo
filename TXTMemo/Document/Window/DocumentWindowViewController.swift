@@ -78,9 +78,16 @@ final class DocumentWindowViewController: NSViewController, NSTextViewDelegate {
         synchronizeDocumentAfterUndoRedo()
     }
 
-    func commitPendingEditorText() {
-        view.window?.makeFirstResponder(nil)
+    func commitPendingEditorText(preservingEditorFocus: Bool = false) {
+        let window = view.window
+        let shouldRestoreEditorFocus = preservingEditorFocus && window?.firstResponder === textView
+
+        window?.makeFirstResponder(nil)
         document.replaceText(with: textView.string)
+
+        if shouldRestoreEditorFocus {
+            window?.makeFirstResponder(textView)
+        }
     }
 
     func increaseFontSize() {
