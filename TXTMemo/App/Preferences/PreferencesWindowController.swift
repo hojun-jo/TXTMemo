@@ -46,6 +46,10 @@ final class PreferencesWindowController: NSWindowController, NSTextFieldDelegate
         commitFontSizeField()
     }
 
+    func controlTextDidChange(_ obj: Notification) {
+        persistFontSizeFieldIfValid()
+    }
+
     @objc func commitFontSizeFieldAction(_ sender: Any?) {
         commitFontSizeField()
     }
@@ -131,7 +135,15 @@ final class PreferencesWindowController: NSWindowController, NSTextFieldDelegate
         }
 
         settingsStore.defaultFontSize = parsed
-        reloadValues()
+        fontSizeField.stringValue = String(settingsStore.defaultFontSize)
+    }
+
+    private func persistFontSizeFieldIfValid() {
+        guard let parsed = Int(fontSizeField.stringValue), !fontSizeField.stringValue.isEmpty else {
+            return
+        }
+
+        settingsStore.defaultFontSize = parsed
     }
 
     private func reloadValues() {
