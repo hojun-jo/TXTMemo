@@ -1,27 +1,16 @@
 import AppKit
 
 final class NotepadDocumentController {
-    func openInitialUntitledDocumentIfNeeded() {
+    func revealExistingDocumentsIfNeeded() -> Bool {
         let sharedController = NSDocumentController.shared
 
-        if revealExistingDocumentWindowsIfNeeded(in: sharedController) {
-            return
+        guard !sharedController.documents.isEmpty else {
+            return false
         }
-
-        do {
-            let document = try sharedController.openUntitledDocumentAndDisplay(true)
-            revealWindows(for: document)
-        } catch {
-            AlertPresenter.present(error)
-        }
-    }
-
-    private func revealExistingDocumentWindowsIfNeeded(in controller: NSDocumentController) -> Bool {
-        guard !controller.documents.isEmpty else { return false }
 
         var revealedAnyWindow = false
 
-        for document in controller.documents {
+        for document in sharedController.documents {
             if document.windowControllers.isEmpty {
                 document.makeWindowControllers()
             }
@@ -30,6 +19,17 @@ final class NotepadDocumentController {
         }
 
         return revealedAnyWindow
+    }
+
+    func openInitialUntitledDocument() {
+        let sharedController = NSDocumentController.shared
+
+        do {
+            let document = try sharedController.openUntitledDocumentAndDisplay(true)
+            revealWindows(for: document)
+        } catch {
+            AlertPresenter.present(error)
+        }
     }
 
     @discardableResult

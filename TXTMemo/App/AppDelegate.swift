@@ -7,6 +7,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let documentController = NotepadDocumentController()
     private let terminationCoordinator = AppTerminationCoordinator()
     private lazy var preferencesWindowController = PreferencesWindowController(settingsStore: settingsStore)
+    private var hasPendingExternalDocumentOpen = false
 
     override init() {
         super.init()
@@ -24,9 +25,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         AppMenuBuilder.buildMainMenu()
         NSApp.activate(ignoringOtherApps: true)
-        DispatchQueue.main.async { [documentController] in
-            documentController.openInitialUntitledDocumentIfNeeded()
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            guard !self.hasPendingExternalDocumentOpen else { return }
+
+            self.documentController.openInitialUntitledDocument()
         }
+    }
+
+    func application(_ sender: NSApplication, openFiles filenames: [String]) {
+        hasPendingExternalDocumentOpen = true
+
+        guard !filenames.isEmpty else {
+            sender.reply(toOpenOrPrint: .failure)
+            return
+        }
+
+        let urls = filenames.map { URL(fileURLWithPath: $0) }
+        openDocuments(at: urls, replyingTo: sender)
     }
 
     func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
@@ -47,7 +63,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         if !flag {
-            documentController.openInitialUntitledDocumentIfNeeded()
+            if !documentController.revealExistingDocumentsIfNeeded() {
+                documentController.openInitialUntitledDocument()
+            }
         }
 
         return true
@@ -59,5 +77,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc func showPreferences(_ sender: Any?) {
         preferencesWindowController.showWindowAndFocus()
+    }
+
+    private func openDocuments(at urls: [URL], replyingTo application: NSApplication) {
+        var remaining = urls.count
+        var didFail = false
+
+        for url in urls {
+            NSDocumentController.shared.openDocument(withContentsOf: url, display: true) { _, _, error in
+                if let error {
+                    didFail = true
+                    AlertPresenter.present(error)
+                }
+
+                remaining -= 1
+
+                if remaining == 0 {
+                    application.reply(toOpenOrPrint: didFail ? .failure : .success)
+                }
+            }
+        }
     }
 }
