@@ -53,4 +53,15 @@ struct EditorSessionControllerTests {
         controller.setWrapEnabled(true)
         #expect(controller.wrapEnabled)
     }
+
+    @Test func wrapDoesNotAffectFontSizeState() {
+        let settingsStore = SettingsStore(defaults: UserDefaults(suiteName: #function)!)
+        let controller = EditorSessionController(settingsStore: settingsStore)
+
+        controller.setFontSize(18)
+        controller.toggleWrapEnabled()
+
+        #expect(controller.fontSize == 18)
+        #expect(controller.wrapEnabled == false)
+    }
 }
