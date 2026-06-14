@@ -81,3 +81,5 @@ playground.xcworkspace
 # Package.resolved
 
 *.env
+
+.swiftpm
