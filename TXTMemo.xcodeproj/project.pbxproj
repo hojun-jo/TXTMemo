@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		70B6F7C12FF1A00100A12345 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 70B6F7C32FF1A00100A12345 /* Sparkle */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		382B956F2FC7E83D003B246D /* TXTMemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TXTMemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				70B6F7C12FF1A00100A12345 /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +70,7 @@
 			);
 			name = TXTMemo;
 			packageProductDependencies = (
+				70B6F7C32FF1A00100A12345 /* Sparkle */,
 			);
 			productName = TXTMemo;
 			productReference = 382B956F2FC7E83D003B246D /* TXTMemo.app */;
@@ -94,6 +100,9 @@
 			);
 			mainGroup = 382B95662FC7E83C003B246D;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				70B6F7C22FF1A00100A12345 /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 382B95702FC7E83D003B246D /* Products */;
 			projectDirPath = "";
@@ -255,10 +264,8 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = SXJPM9PRM7;
-				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TXTMemo;
@@ -271,6 +278,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = moon.TXTMemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
+				SPARKLE_FEED_URL = "https://hojun-jo.github.io/TXTMemo/appcast.xml";
+				SPARKLE_PUBLIC_ED_KEY = REPLACE_WITH_SPARKLE_PUBLIC_ED_KEY;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -290,10 +299,8 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = SXJPM9PRM7;
-				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TXTMemo;
@@ -306,6 +313,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = moon.TXTMemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
+				SPARKLE_FEED_URL = "https://hojun-jo.github.io/TXTMemo/appcast.xml";
+				SPARKLE_PUBLIC_ED_KEY = REPLACE_WITH_SPARKLE_PUBLIC_ED_KEY;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -337,6 +346,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		70B6F7C22FF1A00100A12345 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.9.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		70B6F7C32FF1A00100A12345 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 70B6F7C22FF1A00100A12345 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 382B95672FC7E83C003B246D /* Project object */;
 }

@@ -3,24 +3,16 @@ import AppKit
 @MainActor
 final class PreferencesWindowController: NSWindowController, NSTextFieldDelegate {
     private let settingsStore: SettingsStore
-    private let defaultAppManager: PlainTextDefaultAppManager
     private let fontSizeField = NSTextField(string: "")
-    private let defaultAppStatusLabel = NSTextField(labelWithString: "")
-    private let defaultAppButton = NSButton(title: "", target: nil, action: nil)
-    private var isUpdatingDefaultApp = false
 
-    init(
-        settingsStore: SettingsStore,
-        defaultAppManager: PlainTextDefaultAppManager? = nil
-    ) {
+    init(settingsStore: SettingsStore) {
         self.settingsStore = settingsStore
-        self.defaultAppManager = defaultAppManager ?? PlainTextDefaultAppManager()
 
         let contentViewController = NSViewController()
         let window = NSWindow(contentViewController: contentViewController)
         window.title = "Settings"
         window.styleMask = [.titled, .closable]
-        window.setContentSize(NSSize(width: 520, height: 200))
+        window.setContentSize(NSSize(width: 320, height: 120))
         window.isReleasedWhenClosed = false
         super.init(window: window)
 
@@ -57,7 +49,6 @@ final class PreferencesWindowController: NSWindowController, NSTextFieldDelegate
     private func buildView() -> NSView {
         let label = NSTextField(labelWithString: "Default font size")
         let suffixLabel = NSTextField(labelWithString: "pt")
-        let defaultAppLabel = NSTextField(labelWithString: "Default plain text app")
 
         fontSizeField.alignment = .right
         fontSizeField.controlSize = .regular
@@ -65,67 +56,29 @@ final class PreferencesWindowController: NSWindowController, NSTextFieldDelegate
         fontSizeField.target = self
         fontSizeField.action = #selector(commitFontSizeFieldAction(_:))
 
-        defaultAppStatusLabel.lineBreakMode = .byWordWrapping
-        defaultAppStatusLabel.textColor = .secondaryLabelColor
-        defaultAppStatusLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        defaultAppStatusLabel.usesSingleLineMode = false
-        defaultAppStatusLabel.cell?.wraps = true
-
-        defaultAppButton.target = self
-        defaultAppButton.action = #selector(setDefaultPlainTextApp(_:))
-
         let row = NSStackView(views: [label, fontSizeField, suffixLabel])
         row.orientation = .horizontal
         row.alignment = .centerY
         row.spacing = 12
 
-        let defaultAppSection = NSStackView(views: [defaultAppLabel, defaultAppStatusLabel, defaultAppButton])
-        defaultAppSection.orientation = .vertical
-        defaultAppSection.alignment = .leading
-        defaultAppSection.spacing = 8
-
         fontSizeField.translatesAutoresizingMaskIntoConstraints = false
         fontSizeField.widthAnchor.constraint(equalToConstant: 56).isActive = true
-        defaultAppStatusLabel.translatesAutoresizingMaskIntoConstraints = false
 
         let container = NSView()
-        let stack = NSStackView(views: [row, defaultAppSection])
+        let stack = NSStackView(views: [row])
         stack.orientation = .vertical
         stack.alignment = .leading
-        stack.spacing = 16
         stack.translatesAutoresizingMaskIntoConstraints = false
 
         container.addSubview(stack)
 
         NSLayoutConstraint.activate([
             stack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 20),
-            stack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -20),
-            stack.topAnchor.constraint(equalTo: container.topAnchor, constant: 20),
-            stack.bottomAnchor.constraint(lessThanOrEqualTo: container.bottomAnchor, constant: -20),
-            defaultAppStatusLabel.widthAnchor.constraint(lessThanOrEqualTo: stack.widthAnchor)
+            stack.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -20),
+            stack.centerYAnchor.constraint(equalTo: container.centerYAnchor)
         ])
 
         return container
-    }
-
-    @objc func setDefaultPlainTextApp(_ sender: Any?) {
-        guard !isUpdatingDefaultApp else { return }
-
-        isUpdatingDefaultApp = true
-        refreshDefaultAppControls()
-
-        Task { @MainActor [weak self] in
-            guard let self else { return }
-
-            do {
-                _ = try await defaultAppManager.setCurrentApplicationAsDefault()
-            } catch {
-                presentDefaultAppUpdateErrorIfNeeded(error)
-            }
-
-            isUpdatingDefaultApp = false
-            refreshDefaultAppControls()
-        }
     }
 
     private func commitFontSizeField() {
@@ -148,37 +101,5 @@ final class PreferencesWindowController: NSWindowController, NSTextFieldDelegate
 
     private func reloadValues() {
         fontSizeField.stringValue = String(settingsStore.defaultFontSize)
-        refreshDefaultAppControls()
-    }
-
-    private func refreshDefaultAppControls() {
-        let state = defaultAppManager.currentState()
-
-        defaultAppStatusLabel.stringValue = state.statusText
-
-        if isUpdatingDefaultApp {
-            defaultAppButton.title = "Updating..."
-            defaultAppButton.isEnabled = false
-            return
-        }
-
-        if state.isCurrentApplicationDefault {
-            defaultAppButton.title = "Already Default for Plain Text"
-            defaultAppButton.isEnabled = false
-            return
-        }
-
-        defaultAppButton.title = "Set as Default for Plain Text"
-        defaultAppButton.isEnabled = true
-    }
-
-    private func presentDefaultAppUpdateErrorIfNeeded(_ error: Error) {
-        let nsError = error as NSError
-
-        if nsError.domain == NSCocoaErrorDomain, nsError.code == NSUserCancelledError {
-            return
-        }
-
-        AlertPresenter.present(error)
     }
 }

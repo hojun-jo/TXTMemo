@@ -15,7 +15,7 @@ let package = Package(
         .library(
             name: "EditorCore",
             targets: ["EditorCore"]
-        )
+        ),
     ],
     targets: [
         .target(
@@ -23,7 +23,7 @@ let package = Package(
             path: "TXTMemo/Workflows",
             exclude: [
                 "CloseConfirmationSheetController.swift",
-                "CloseWorkflowCoordinator.swift"
+                "CloseWorkflowCoordinator.swift",
             ],
             sources: [
                 "CloseDecisionEngine.swift"
@@ -44,10 +44,11 @@ let package = Package(
                 "Assets.xcassets",
                 "App/AppDelegate.swift",
                 "App/AppMenuBuilder.swift",
+                "App/AppUpdater.swift",
                 "App/AppTerminationCoordinator.swift",
                 "App/Preferences/PreferencesWindowController.swift",
                 "Workflows",
-                "Editor/NotepadTextView.swift"
+                "Editor/NotepadTextView.swift",
             ],
             sources: [
                 "Document/DocumentStatePolicy.swift",
@@ -57,12 +58,12 @@ let package = Package(
                 "Document/Save/SaveRoutePolicy.swift",
                 "Document/WindowTitleFormatter.swift",
                 "Document/UntitledNameAllocator.swift",
+                "App/AppUpdaterConfiguration.swift",
                 "App/Preferences/SettingsStore.swift",
-                "App/Preferences/PlainTextDefaultAppManager.swift",
                 "Editor/EditorSessionController.swift",
                 "Editor/FontSizePolicy.swift",
                 "Editor/WrapLayoutController.swift",
-                "Infrastructure/TextFileCodec.swift"
+                "Infrastructure/TextFileCodec.swift",
             ]
         ),
         .testTarget(
@@ -83,9 +84,9 @@ let package = Package(
                 "UntitledNameAllocatorTests.swift",
                 "EditorSessionControllerTests.swift",
                 "WrapLayoutControllerTests.swift",
+                "AppUpdaterConfigurationTests.swift",
                 "SettingsStoreTests.swift",
-                "PlainTextDefaultAppManagerTests.swift"
             ]
-        )
+        ),
     ]
 )

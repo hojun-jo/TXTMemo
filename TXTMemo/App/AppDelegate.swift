@@ -2,6 +2,7 @@ import AppKit
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    private let appUpdater = AppUpdater()
     private let settingsStore = SettingsStore()
     private let savePanelService = SavePanelService()
     private let documentController = NotepadDocumentController()
@@ -19,11 +20,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.regular)
-        AppMenuBuilder.buildMainMenu()
+        installMainMenu()
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        AppMenuBuilder.buildMainMenu()
+        installMainMenu()
         NSApp.activate(ignoringOtherApps: true)
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
@@ -78,6 +79,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc func showPreferences(_ sender: Any?) {
         preferencesWindowController.showWindowAndFocus()
+    }
+
+    private func installMainMenu() {
+        let menuReferences = AppMenuBuilder.buildMainMenu()
+        appUpdater.configure(checkForUpdatesMenuItem: menuReferences.checkForUpdatesItem)
     }
 
     private func openDocuments(at urls: [URL], replyingTo application: NSApplication) {

@@ -1,23 +1,32 @@
 import AppKit
 
 enum AppMenuBuilder {
-    static func buildMainMenu() {
+    struct MenuReferences {
+        let checkForUpdatesItem: NSMenuItem
+    }
+
+    static func buildMainMenu() -> MenuReferences {
         let mainMenu = NSMenu()
         let appMenuItem = mainMenu.addItem(withTitle: "TXTMemo", action: nil, keyEquivalent: "")
         let fileMenuItem = mainMenu.addItem(withTitle: "File", action: nil, keyEquivalent: "")
         let editMenuItem = mainMenu.addItem(withTitle: "Edit", action: nil, keyEquivalent: "")
+        let appMenu = buildAppMenu()
 
-        appMenuItem.submenu = buildAppMenu()
+        appMenuItem.submenu = appMenu.menu
         fileMenuItem.submenu = buildFileMenu()
         editMenuItem.submenu = buildEditMenu()
 
         NSApp.mainMenu = mainMenu
+
+        return MenuReferences(checkForUpdatesItem: appMenu.checkForUpdatesItem)
     }
 
-    private static func buildAppMenu() -> NSMenu {
+    private static func buildAppMenu() -> (menu: NSMenu, checkForUpdatesItem: NSMenuItem) {
         let menu = NSMenu(title: "TXTMemo")
 
         menu.addItem(withTitle: "About TXTMemo", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
+        menu.addItem(.separator())
+        let checkForUpdatesItem = menu.addItem(withTitle: "Check for Updates...", action: nil, keyEquivalent: "")
         menu.addItem(.separator())
         menu.addItem(withTitle: "Settings...", action: #selector(AppDelegate.showPreferences(_:)), keyEquivalent: ",")
         menu.addItem(.separator())
@@ -27,7 +36,7 @@ enum AppMenuBuilder {
         menu.addItem(.separator())
         menu.addItem(withTitle: "Quit TXTMemo", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
 
-        return menu
+        return (menu, checkForUpdatesItem)
     }
 
     private static func buildFileMenu() -> NSMenu {
