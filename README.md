@@ -1,6 +1,6 @@
 # TXTMemo
 
-TXTMemo is a lightweight macOS plain-text editor focused on quick note taking and `.txt` file editing.
+TXTMemo is a lightweight macOS plain-text editor for quick note taking and `.txt` file editing, especially for temporary notes you want to write down immediately and throw away later instead of mixing them into your main notes.
 
 ## Install
 
